@@ -20,35 +20,39 @@
 #ifndef EVOLUTION_ON_ON_ICON_H
 #define EVOLUTION_ON_ON_ICON_H
 
-typedef void (*do_properties_func)(GtkMenuItem*, gpointer);
-typedef void (*do_quit_func)(GtkMenuItem*, gpointer);
+typedef void (*do_properties_func)(GtkMenuItem *, gpointer);
+typedef void (*do_quit_func)(GtkMenuItem *, gpointer);
 typedef void (*do_toggle_window_func)();
 
-struct OnIcon {
+struct OnIcon
+{
 #ifdef HAVE_LIBAPPINDICATOR
-	AppIndicator			*appindicator;
+	AppIndicator *appindicator;
 	/* If somebody else rises Evolution window */
-	gboolean				external_shown;
+	gboolean external_shown;
 #else
-	GtkStatusIcon			*icon;
+	GtkStatusIcon *icon;
 #endif
 
-	EShellWindow			*evo_window;
+	EShellWindow *evo_window;
 
-	do_properties_func		properties_func;
-	do_quit_func			quit_func;
-	do_toggle_window_func	toggle_window_func;
+	do_properties_func properties_func;
+	do_quit_func quit_func;
+	do_toggle_window_func toggle_window_func;
 
 #ifdef HAVE_LIBNOTIFY
-	NotifyNotification		*notify;
+	NotifyNotification *notify;
 #endif /* HAVE_LIBNOTIFY */
 
-	gchar					*uri;
-	guint					status_count;
-	gboolean				winnotify;
+	gchar *uri;
+	guint status_count;
+	gboolean winnotify;
 }; /* struct OnIcon */
 
-#define ONICON_NEW {NULL}
+#define ONICON_NEW \
+	{              \
+		NULL       \
+	}
 
 static void
 remove_notification(struct OnIcon *_onicon);
@@ -64,7 +68,7 @@ icon_activated(GtkStatusIcon *icon, gpointer user_data);
 
 static void
 popup_menu_status(GtkStatusIcon *status_icon, guint button,
-		guint activate_time, gpointer user_data);
+				  guint activate_time, gpointer user_data);
 #endif /* HAVE_LIBAPPINDICATOR */
 
 static GtkMenu *
@@ -74,32 +78,38 @@ static void
 set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
 {
 #ifdef HAVE_LIBAPPINDICATOR
-	if (unread) {
+	if (unread)
+	{
 		app_indicator_set_status(_onicon->appindicator,
-				APP_INDICATOR_STATUS_ATTENTION);
-	} else {
-		app_indicator_set_status(_onicon->appindicator,
-				APP_INDICATOR_STATUS_ACTIVE);
+								 APP_INDICATOR_STATUS_ATTENTION);
 	}
-#else /* !#ifdef HAVE_LIBAPPINDICATOR */
+	else
+	{
+		app_indicator_set_status(_onicon->appindicator,
+								 APP_INDICATOR_STATUS_ACTIVE);
+	}
+#else  /* !#ifdef HAVE_LIBAPPINDICATOR */
 	gtk_status_icon_set_tooltip_text(_onicon->icon, msg);
-	if (unread) {
+	if (unread)
+	{
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("xfce-newmail",
-						GTK_ICON_SIZE_LARGE_TOOLBAR));
-	} else {
+										e_icon_factory_get_icon("indicator-messages-new",
+																GTK_ICON_SIZE_SMALL_TOOLBAR));
+	}
+	else
+	{
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("xfce-nomail",
-						GTK_ICON_SIZE_LARGE_TOOLBAR));
+										e_icon_factory_get_icon("indicator-messages",
+																GTK_ICON_SIZE_SMALL_TOOLBAR));
 	}
 #endif /* #ifdef HAVE_LIBAPPINDICATOR */
 }
 
 static void
 create_icon(struct OnIcon *_onicon,
-		do_properties_func _prop_func,
-		do_quit_func _quit_func,
-		do_toggle_window_func _toggle_window_func)
+			do_properties_func _prop_func,
+			do_quit_func _quit_func,
+			do_toggle_window_func _toggle_window_func)
 {
 	_onicon->properties_func = _prop_func;
 	_onicon->quit_func = _quit_func;
@@ -109,38 +119,39 @@ create_icon(struct OnIcon *_onicon,
 #ifdef HAVE_LIBAPPINDICATOR
 
 	GtkMenu *menu;
-	const gchar *read_icon = e_icon_factory_get_icon_filename("xfce-nomail",
-			GTK_ICON_SIZE_LARGE_TOOLBAR);
-	const gchar *unread_icon = e_icon_factory_get_icon_filename("xfce-newmail",
-			GTK_ICON_SIZE_LARGE_TOOLBAR);
+	const gchar *read_icon = e_icon_factory_get_icon_filename("indicator-messages",
+															  GTK_ICON_SIZE_SMALL_TOOLBAR);
+	const gchar *unread_icon = e_icon_factory_get_icon_filename("indicator-messages-new",
+																GTK_ICON_SIZE_SMALL_TOOLBAR);
 	_onicon->appindicator = app_indicator_new("evolution-on", read_icon,
-			APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+											  APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 	app_indicator_set_status(_onicon->appindicator,
-			APP_INDICATOR_STATUS_ACTIVE);
+							 APP_INDICATOR_STATUS_ACTIVE);
 	app_indicator_set_icon_full(_onicon->appindicator, read_icon, _("mail"));
 	app_indicator_set_attention_icon_full(_onicon->appindicator, unread_icon,
-			_("new mail"));
+										  _("new mail"));
 	menu = create_popup_menu(_onicon);
 	app_indicator_set_menu(_onicon->appindicator, GTK_MENU(menu));
 	_onicon->external_shown = FALSE;
 
 #else /* !HAVE_LIBAPPINDICATOR */
 
-	if (!_onicon->icon) {
+	if (!_onicon->icon)
+	{
 		_onicon->icon = gtk_status_icon_new();
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("xfce-nomail",
-						GTK_ICON_SIZE_LARGE_TOOLBAR));
+										e_icon_factory_get_icon("indicator-messages",
+																GTK_ICON_SIZE_SMALL_TOOLBAR));
 
 		g_signal_connect(G_OBJECT(_onicon->icon), "activate",
-				G_CALLBACK(icon_activated),
-				_onicon);
+						 G_CALLBACK(icon_activated),
+						 _onicon);
 
-		g_signal_connect(G_OBJECT(_onicon->icon),"button-press-event",
-				G_CALLBACK(button_press_cb), _onicon);
+		g_signal_connect(G_OBJECT(_onicon->icon), "button-press-event",
+						 G_CALLBACK(button_press_cb), _onicon);
 
 		g_signal_connect(_onicon->icon, "popup-menu",
-				G_CALLBACK(popup_menu_status), _onicon);
+						 G_CALLBACK(popup_menu_status), _onicon);
 	}
 	gtk_status_icon_set_visible(_onicon->icon, TRUE);
 
@@ -151,46 +162,50 @@ create_icon(struct OnIcon *_onicon,
 static void
 indicator_activated(GtkMenuItem *item, gpointer user_data)
 {
-	struct OnIcon *_onicon = (struct OnIcon*)user_data;
-	if (!_onicon->external_shown) {
+	struct OnIcon *_onicon = (struct OnIcon *)user_data;
+	if (!_onicon->external_shown)
+	{
 		_onicon->toggle_window_func();
 		status_icon_activate_cb(_onicon);
-	} else {
+	}
+	else
+	{
 		_onicon->external_shown = FALSE;
 	}
 }
-#else /* HAVE_LIBAPPINDICATOR */
+#else  /* HAVE_LIBAPPINDICATOR */
 
 static void
 icon_activated(GtkStatusIcon *icon, gpointer user_data)
 {
-	struct OnIcon *_onicon = (struct OnIcon*)user_data;
+	struct OnIcon *_onicon = (struct OnIcon *)user_data;
 	status_icon_activate_cb(_onicon);
-	gtk_status_icon_set_from_pixbuf (_onicon->icon,
-			e_icon_factory_get_icon("xfce-nomail", GTK_ICON_SIZE_LARGE_TOOLBAR));
-	gtk_status_icon_set_has_tooltip (_onicon->icon, FALSE);
+	gtk_status_icon_set_from_pixbuf(_onicon->icon,
+									e_icon_factory_get_icon("indicator-messages", GTK_ICON_SIZE_SMALL_TOOLBAR));
+	gtk_status_icon_set_has_tooltip(_onicon->icon, FALSE);
 	_onicon->winnotify = FALSE;
 }
 
 static void
 popup_menu_status(GtkStatusIcon *status_icon, guint button,
-		guint activate_time, gpointer user_data)
+				  guint activate_time, gpointer user_data)
 {
-	struct OnIcon *_onicon = (struct OnIcon*)user_data;
+	struct OnIcon *_onicon = (struct OnIcon *)user_data;
 	GtkMenu *menu = create_popup_menu(_onicon);
 	gtk_menu_popup(GTK_MENU(menu),
-			NULL, NULL,
-			gtk_status_icon_position_menu,
-			_onicon->icon,
-			button, activate_time);
+				   NULL, NULL,
+				   gtk_status_icon_position_menu,
+				   _onicon->icon,
+				   button, activate_time);
 }
 #endif /* HAVE_LIBAPPINDICATOR */
 
 static gboolean
 button_press_cb(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
-	struct OnIcon *_onicon = (struct OnIcon*)data;
-	if (event->button != 1) {
+	struct OnIcon *_onicon = (struct OnIcon *)data;
+	if (event->button != 1)
+	{
 		return FALSE;
 	}
 	_onicon->toggle_window_func();
@@ -211,14 +226,14 @@ create_popup_menu(struct OnIcon *_onicon)
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	gtk_widget_show(item);
 	g_signal_connect(GTK_CHECK_MENU_ITEM(item), "toggled",
-			G_CALLBACK(indicator_activated), _onicon);
+					 G_CALLBACK(indicator_activated), _onicon);
 #endif /* HAVE_LIBAPPINDICATOR */
 
 	item = gtk_image_menu_item_new_from_stock(GTK_STOCK_PROPERTIES, NULL);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	gtk_widget_show(item);
 	g_signal_connect(item, "activate",
-			G_CALLBACK(_onicon->properties_func), _onicon);
+					 G_CALLBACK(_onicon->properties_func), _onicon);
 
 	item = gtk_separator_menu_item_new();
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
@@ -228,7 +243,7 @@ create_popup_menu(struct OnIcon *_onicon)
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	gtk_widget_show(item);
 	g_signal_connect(item, "activate",
-			G_CALLBACK(_onicon->quit_func), _onicon);
+					 G_CALLBACK(_onicon->quit_func), _onicon);
 	return menu;
 }
 
@@ -249,7 +264,8 @@ status_icon_activate_cb(struct OnIcon *_onicon)
 
 	g_return_if_fail(list != NULL);
 
-	if (_onicon->uri) {
+	if (_onicon->uri)
+	{
 		EShellView *shell_view;
 		EShellWindow *shell_window;
 		EShellSidebar *shell_sidebar;
