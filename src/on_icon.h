@@ -85,11 +85,11 @@ set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
 	gtk_status_icon_set_tooltip_text(_onicon->icon, msg);
 	if (unread) {
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("mail-unread",
+				e_icon_factory_get_icon("xfce-newmail",
 						GTK_ICON_SIZE_LARGE_TOOLBAR));
 	} else {
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("mail-read",
+				e_icon_factory_get_icon("xfce-nomail,
 						GTK_ICON_SIZE_LARGE_TOOLBAR));
 	}
 #endif /* #ifdef HAVE_LIBAPPINDICATOR */
@@ -109,9 +109,9 @@ create_icon(struct OnIcon *_onicon,
 #ifdef HAVE_LIBAPPINDICATOR
 
 	GtkMenu *menu;
-	const gchar *read_icon = e_icon_factory_get_icon_filename("mail-read",
+	const gchar *read_icon = e_icon_factory_get_icon_filename("xfce-nomail",
 			GTK_ICON_SIZE_LARGE_TOOLBAR);
-	const gchar *unread_icon = e_icon_factory_get_icon_filename("mail-unread",
+	const gchar *unread_icon = e_icon_factory_get_icon_filename("xfce-newmail",
 			GTK_ICON_SIZE_LARGE_TOOLBAR);
 	_onicon->appindicator = app_indicator_new("evolution-on", read_icon,
 			APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
@@ -129,7 +129,7 @@ create_icon(struct OnIcon *_onicon,
 	if (!_onicon->icon) {
 		_onicon->icon = gtk_status_icon_new();
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("mail-read",
+				e_icon_factory_get_icon("xfce-nomail",
 						GTK_ICON_SIZE_LARGE_TOOLBAR));
 
 		g_signal_connect(G_OBJECT(_onicon->icon), "activate",
@@ -167,7 +167,7 @@ icon_activated(GtkStatusIcon *icon, gpointer user_data)
 	struct OnIcon *_onicon = (struct OnIcon*)user_data;
 	status_icon_activate_cb(_onicon);
 	gtk_status_icon_set_from_pixbuf (_onicon->icon,
-			e_icon_factory_get_icon("mail-read", GTK_ICON_SIZE_LARGE_TOOLBAR));
+			e_icon_factory_get_icon("xfce-nomail", GTK_ICON_SIZE_LARGE_TOOLBAR));
 	gtk_status_icon_set_has_tooltip (_onicon->icon, FALSE);
 	_onicon->winnotify = FALSE;
 }
