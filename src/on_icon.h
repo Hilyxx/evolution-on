@@ -89,7 +89,7 @@ set_icon(struct OnIcon *_onicon, gboolean unread, const gchar *msg)
 						GTK_ICON_SIZE_LARGE_TOOLBAR));
 	} else {
 		gtk_status_icon_set_from_pixbuf(_onicon->icon,
-				e_icon_factory_get_icon("xfce-nomail,
+				e_icon_factory_get_icon("xfce-nomail",
 						GTK_ICON_SIZE_LARGE_TOOLBAR));
 	}
 #endif /* #ifdef HAVE_LIBAPPINDICATOR */
