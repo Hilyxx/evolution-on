@@ -1,6 +1,6 @@
 # Install
 
-Install gconf2, gconf2-devel and evolution-devel
+Install gconf2, gconf2-devel, evolution-devel and gnome-common
 
 ```[bash]
 ./autogen.sh
